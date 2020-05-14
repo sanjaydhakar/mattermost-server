@@ -3463,11 +3463,11 @@ func (s SqlChannelStore) CreateSidebarCategory(userId, teamId string, newCategor
 	sql, args, _ := s.getQueryBuilder().
 		Select("MAX(SortOrder)").
 		From("SidebarCategories").
-		GroupBy("SortOrder").
 		Where(sq.And{
 			sq.Eq{"TeamId": teamId},
 			sq.Eq{"UserId": userId},
 		}).ToSql()
+
 	maxOrder, err := transaction.SelectInt(sql, args...)
 	if err != nil {
 		return nil, model.NewAppError("SqlPostStore.CreateSidebarCategory", "store.sql_channel.sidebar_categories.app_error", nil, err.Error(), http.StatusInternalServerError)
