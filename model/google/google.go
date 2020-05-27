@@ -1,12 +1,10 @@
 package oauthgoogle
 
-
 import (
 	"encoding/json"
 	"io"
-	"strconv"
 	"strings"
-
+	"fmt"
 	"github.com/mattermost/mattermost-server/v5/einterfaces"
 	"github.com/mattermost/mattermost-server/v5/model"
 )
@@ -14,13 +12,42 @@ import (
 type GoogleProvider struct {
 }
 
+
 type GoogleUser struct {
-	Id       int64  `json:"id"`
-	Username string `json:"username"`
-	Login    string `json:"login"`
-	Email    string `json:"email"`
-	Name     string `json:"name"`
+	ResourceName string `json:"resourceName"`
+	Etag         string `json:"etag"`
+	Names        []struct {
+		NamesMetadata struct {
+			Primary bool `json:"primary"`
+			Source  struct {
+				Type string `json:"type"`
+				ID   string `json:"id"`
+			} `json:"source"`
+		} `json:"metadata,omitempty"`
+		DisplayName          string `json:"displayName"`
+		FamilyName           string `json:"familyName"`
+		GivenName            string `json:"givenName"`
+		DisplayNameLastFirst string `json:"displayNameLastFirst"`
+		Metadata             struct {
+			Source struct {
+				Type string `json:"type"`
+				ID   string `json:"id"`
+			} `json:"source"`
+		} `json:"metadata,omitempty"`
+	} `json:"names"`
+	EmailAddresses []struct {
+		EmailMetadata struct {
+			Primary  bool `json:"primary"`
+			Verified bool `json:"verified"`
+			Source   struct {
+				Type string `json:"type"`
+				ID   string `json:"id"`
+			} `json:"source"`
+		} `json:"metadata"`
+		Value string `json:"value"`
+	} `json:"emailAddresses"`
 }
+
 
 func init() {
 	provider := &GoogleProvider{}
@@ -29,12 +56,11 @@ func init() {
 
 func userFromGoogleUser(glu *GoogleUser) *model.User {
 	user := &model.User{}
-	username := glu.Username
-	if username == "" {
-		username = glu.Login
-	}
+	fmt.Println(glu)
+	username := glu.EmailAddresses[0].Value
+
 	user.Username = model.CleanUsername(username)
-	splitName := strings.Split(glu.Name, " ")
+	splitName := strings.Split(glu.Names[0].DisplayName, " ")
 	if len(splitName) == 2 {
 		user.FirstName = splitName[0]
 		user.LastName = splitName[1]
@@ -42,9 +68,9 @@ func userFromGoogleUser(glu *GoogleUser) *model.User {
 		user.FirstName = splitName[0]
 		user.LastName = strings.Join(splitName[1:], " ")
 	} else {
-		user.FirstName = glu.Name
+		user.FirstName = glu.Names[0].GivenName
 	}
-	user.Email = glu.Email
+	user.Email = glu.EmailAddresses[0].Value
 	user.Email = strings.ToLower(user.Email)
 	userId := glu.getAuthData()
 	user.AuthData = &userId
@@ -74,11 +100,11 @@ func (glu *GoogleUser) ToJson() string {
 }
 
 func (glu *GoogleUser) IsValid() bool {
-	if glu.Id == 0 {
+	if glu.EmailAddresses[0].EmailMetadata.Source.ID == "0" {
 		return false
 	}
 
-	if len(glu.Email) == 0 {
+	if glu.EmailAddresses[0].Value == "" {
 		return false
 	}
 
@@ -87,7 +113,7 @@ func (glu *GoogleUser) IsValid() bool {
 
 
 func (glu *GoogleUser) getAuthData() string {
-	return strconv.FormatInt(glu.Id, 10)
+	return glu.EmailAddresses[0].EmailMetadata.Source.ID
 }
 
 func (m *GoogleProvider) GetUserFromJson(data io.Reader) *model.User {
