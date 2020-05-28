@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io"
 	"strings"
-	"fmt"
 	"github.com/mattermost/mattermost-server/v5/einterfaces"
 	"github.com/mattermost/mattermost-server/v5/model"
 )
@@ -56,7 +55,6 @@ func init() {
 
 func userFromGoogleUser(glu *GoogleUser) *model.User {
 	user := &model.User{}
-	fmt.Println(glu)
 	username := glu.EmailAddresses[0].Value
 
 	user.Username = model.CleanUsername(username)
@@ -71,7 +69,7 @@ func userFromGoogleUser(glu *GoogleUser) *model.User {
 		user.FirstName = glu.Names[0].GivenName
 	}
 	user.Email = glu.EmailAddresses[0].Value
-	user.Email = strings.ToLower(user.Email)
+
 	userId := glu.getAuthData()
 	user.AuthData = &userId
 	user.AuthService = model.USER_AUTH_SERVICE_GOOGLE
