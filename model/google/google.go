@@ -57,7 +57,13 @@ func userFromGoogleUser(glu *GoogleUser) *model.User {
 	user := &model.User{}
 	username := glu.EmailAddresses[0].Value
 
-	user.Username = model.CleanUsername(username)
+	splitUserName := strings.Split(username, "@")
+	if ((len(splitUserName) == 2) && (splitUserName[1] == "flipkart.com")) {
+		user.Username = model.CleanUsername(splitUserName[0])
+	} else {
+		user.Username = model.CleanUsername(username)
+	}
+
 	splitName := strings.Split(glu.Names[0].DisplayName, " ")
 	if len(splitName) == 2 {
 		user.FirstName = splitName[0]
