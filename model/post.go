@@ -80,6 +80,7 @@ type Post struct {
 	RootId     string `json:"root_id"`
 	ParentId   string `json:"parent_id"`
 	OriginalId string `json:"original_id"`
+	HideFromMainChannel bool `json:"hide_from_main_channel"`
 
 	Message string `json:"message"`
 	// MessageSource will contain the message as submitted by the user if Message has been modified
@@ -183,6 +184,7 @@ func (o *Post) ShallowCopy(dst *Post) error {
 	dst.RootId = o.RootId
 	dst.ParentId = o.ParentId
 	dst.OriginalId = o.OriginalId
+	dst.HideFromMainChannel = o.HideFromMainChannel
 	dst.Message = o.Message
 	dst.MessageSource = o.MessageSource
 	dst.Type = o.Type
