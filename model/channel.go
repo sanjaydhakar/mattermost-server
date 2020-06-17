@@ -21,7 +21,7 @@ const (
 	CHANNEL_GROUP                  = "G"
 	CHANNEL_GROUP_MAX_USERS        = 8
 	CHANNEL_GROUP_MIN_USERS        = 3
-	DEFAULT_CHANNEL                = "town-square"
+	DEFAULT_CHANNEL                = "general"
 	CHANNEL_DISPLAY_NAME_MAX_RUNES = 64
 	CHANNEL_NAME_MIN_LENGTH        = 2
 	CHANNEL_NAME_MAX_LENGTH        = 64
@@ -112,7 +112,7 @@ type ChannelModeratedRolesPatch struct {
 // ChannelSearchOpts contains options for searching channels.
 //
 // NotAssociatedToGroup will exclude channels that have associated, active GroupChannels records.
-// ExcludeDefaultChannels will exclude the configured default channels (ex 'town-square' and 'off-topic').
+// ExcludeDefaultChannels will exclude the configured default channels (ex 'general' and 'off-topic').
 // IncludeDeleted will include channel records where DeleteAt != 0.
 // ExcludeChannelNames will exclude channels from the results by name.
 // Paginate whether to paginate the results.
